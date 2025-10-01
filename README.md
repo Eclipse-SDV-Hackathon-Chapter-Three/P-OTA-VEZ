@@ -21,7 +21,7 @@ Over The Air Vehicle EZy
 **mission update possible**
 
 ## Core Idea  
-*Seameless OTA mastery: fragmented, dependency-aware updates with fail-safe rollback and rigorous testing for an always available vehicle!*
+*Seamless OTA mastery:Dependency-aware, fragmented updates with fail-safe rollback and testing for ultimate vehicle uptime!*
 
 ---
 
