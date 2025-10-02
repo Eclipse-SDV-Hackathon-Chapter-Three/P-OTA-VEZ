@@ -3,11 +3,12 @@
 #include <stdio.h>
 #include <stdint.h>
 
-// Endereços das partições (ajusta conforme .ld)
-#define APP_A_BASE 0x08020000  // Exemplo
+// Endereço base da App A (confirme no linker script)
+#define APP_A_BASE       0x08020000
 
 UART_HandleTypeDef huart1;
 
+// Função para redirecionar printf para UART
 int _write(int file, char *ptr, int len) {
     HAL_UART_Transmit(&huart1, (uint8_t*)ptr, len, HAL_MAX_DELAY);
     return len;
@@ -33,27 +34,39 @@ void UART_Init(void) {
     HAL_UART_Init(&huart1);
 }
 
+typedef void (*pFunction)(void);
+
 void jump_to_app(uint32_t app_address) {
-    uint32_t *reset_vector = (uint32_t *)(app_address + 4);  // Reset handler
-    void (*app_reset_handler)(void) = (void *)(*reset_vector);
-    __set_MSP(*(uint32_t *)app_address);  // Stack pointer
-    app_reset_handler();  // Salta
+    uint32_t *vector_table = (uint32_t *)app_address;
+    uint32_t jump_address = vector_table[1]; // Reset_Handler address
+    pFunction app_reset_handler = (pFunction)jump_address;
+
+    // Desabilita todas as interrupções antes do salto (bom para segurança)
+    __disable_irq();
+
+    // Set stack pointer to start of app
+    __set_MSP(vector_table[0]);
+
+    // Set vector table offset register to app base
+    SCB->VTOR = app_address;
+
+    // Jump para Reset_Handler da app
+    app_reset_handler();
 }
 
 int main(void) {
     HAL_Init();
-    // SystemClock_Config();  // Copia do teu system_stm32f4xx.c
+    // SystemClock_Config();  // Se já tiver, use para configurar o clock do microcontrolador
 
     UART_Init();
     printf("Bootloader iniciado\r\n");
 
-    // Verifica e salta (exemplo simples)
     printf("Saltando para App A...\r\n");
     jump_to_app(APP_A_BASE);
 
-    while (1) {  // Se falhar
+    while (1) {
         HAL_Delay(1000);
-        printf("Bootloader rodando...\r\n");
+        printf("Bootloader rodando...\r\n");  // Só executa se o jump falhar
     }
     return 0;
 }

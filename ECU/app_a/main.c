@@ -6,16 +6,9 @@
 
 int main(void) {
     HAL_Init();
-    // SystemClock_Config();
-
     UART_Init();
-    printf("App A iniciado\r\n");
-
-    // Adiciona o teu código real aqui (ex.: cloudconfig, sntpclient do teu app original)
-
+    printf("Boot na partição App A\n");
     while (1) {
         HAL_Delay(1000);
-        printf("App A rodando...\r\n");
     }
-    return 0;
 }
