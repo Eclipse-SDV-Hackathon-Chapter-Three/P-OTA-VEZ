@@ -1,0 +1,18 @@
+FROM ubuntu:22.04
+
+# Instalar dependências básicas
+RUN apt-get update && apt-get install -y \
+    curl \
+    sudo \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Baixar e executar script de instalação oficial
+RUN curl -sfL https://github.com/eclipse-ankaios/ankaios/releases/download/v0.5.1/install.sh | bash -s -- -t none
+
+# O script instala em /usr/local/bin por padrão
+# -t none desabilita criação de arquivos systemd (não necessários em container)
+
+WORKDIR /app
+
+CMD ["/bin/bash"]
