@@ -1,0 +1,14 @@
+ota-demo/
+├── docker-compose.yml         # Simulates Ankaios server and agent
+├── manifests/
+│   ├── visual-templates.yaml  # Ankaios workload for visual templates
+│   ├── bootloader.yaml       # Dependency workload
+├── scripts/
+│   ├── generate-package.sh   # Creates signed update package
+│   ├── apply-update.sh       # Triggers OTA update
+│   ├── simulate-failure.sh   # Simulates test failure for rollback
+├── tests/
+│   ├── static-tests.sh       # Static validation (e.g., checksum)
+│   ├── dynamic-tests.sh      # Dynamic validation (e.g., UI rendering)
+├── logs/                     # Audit logs for traceability
+└── README.md                 # Instructions for demo

@@ -1,0 +1,25 @@
+workloads:
+  visualTemplates:
+    runtime: podman
+    runtimeConfig:
+      image: docker.io/visual-templates:v2.0
+      partition: B  # Target inactive partition
+      command: ["podman", "run", "--rm", "-v", "/data/partition-b:/app", "visual-templates:v2.0"]
+    dependencies:
+      - name: bootloader
+        version: v1.2
+        type: STRONG
+    validation:
+      staticTests:
+        - type: checksum
+          command: ["sha256sum", "/manifests/visual-templates.tar.gz"]
+          expected: "64add1361da865ce5aa49b25bf8305a7c5fa3045331946c5ad24c5c7cfdf0a2d"
+        - type: memoryCheck
+          command: ["free", "-m"]
+          threshold: 128
+      dynamicTests:
+        - type: renderTest
+          command: ["/tests/dynamic-tests.sh"]
+    rollback:
+      partition: A  # Fallback to previous version
+      image: docker.io/visual-templates:v1.0

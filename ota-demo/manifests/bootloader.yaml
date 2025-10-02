@@ -1,0 +1,15 @@
+workloads:
+  bootloader:
+    runtime: podman
+    runtimeConfig:
+      image: docker.io/bootloader:v1.2
+      partition: B
+      command: ["podman", "run", "--rm", "-v", "/data/partition-b:/app", "bootloader:v1.2"]
+    validation:
+      staticTests:
+        - type: checksum
+          command: ["sha256sum", "/manifests/bootloader.tar.gz"]
+          expected: "expected_sha256_hash"
+    rollback:
+      partition: A
+      image: docker.io/bootloader:v1.1

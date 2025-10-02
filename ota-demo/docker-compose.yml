@@ -1,0 +1,49 @@
+services:
+  ankaios-server:
+    image: ghcr.io/eclipse-ankaios/ankaios-dev:latest
+    container_name: ankaios-server
+    environment:
+      - ARCH=arm64  # For RPi5 compatibility
+      - LOG_LEVEL=info
+    volumes:
+      - ./manifests:/manifests
+      - ./logs:/logs
+    command: ank server --address 0.0.0.0:25551
+    ports:
+      - "25551:25551"
+    networks:
+      - ota-net
+    restart: unless-stopped
+
+  ankaios-agent-cluster:
+    image: ghcr.io/eclipse-ankaios/ankaios-dev:latest
+    container_name: ankaios-agent-cluster
+    environment:
+      - ARCH=arm64
+      - LOG_LEVEL=info
+    volumes:
+      - ./manifests:/manifests
+      - ./tests:/tests
+      - ./logs:/logs
+    command: ank agent --server-address ankaios-server:25551 --name instrument-cluster
+    depends_on:
+      - ankaios-server
+    networks:
+      - ota-net
+    restart: unless-stopped
+
+  mock-cloud:
+    image: python:3.9-slim
+    container_name: mock-cloud
+    volumes:
+      - ./scripts:/scripts
+      - ./manifests:/manifests
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["sleep 10 && python /scripts/mock-cloud.py"]  # Wait for Ankaios startup
+    networks:
+      - ota-net
+    restart: unless-stopped
+
+networks:
+  ota-net:
+    driver: bridge
